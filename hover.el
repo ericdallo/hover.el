@@ -33,6 +33,12 @@
 
 (defconst hover-buffer-name "*Hover*")
 
+(defvar hover-command-path (concat (getenv "GOPATH") "/bin/hover")
+  "Path to go where hover is installed.")
+
+(defvar flutter-sdk-path nil
+  "Path to flutter SDK.")
+
 ;;; Internal
 
 (defun hover--project-get-root ()
@@ -61,7 +67,7 @@ ARGS is a space-delimited string of CLI flags passed to
            (alive (hover--running-p))
            (arglist (if ,args (split-string ,args))))
       (unless alive
-        (apply #'make-comint-in-buffer "Hover" buffer "hover" nil "run" arglist))
+        (apply #'make-comint-in-buffer "Hover" buffer (build-hover-command) nil "run" arglist))
       (with-current-buffer buffer
         (unless (derived-mode-p 'hover-mode)
           (hover-mode)))
@@ -69,9 +75,18 @@ ARGS is a space-delimited string of CLI flags passed to
 
 (defun hover--initialize ()
   "Helper function to initialize Hover."
-  (setq comint-process-echoes nil))
+  (setq comint-process-echoes nil)
+  (when flutter-sdk-path
+    (let ((flutter-command-path (concat (file-name-as-directory flutter-sdk-path) "bin")))
+      (setenv "PATH" (concat flutter-command-path ":" (getenv "PATH"))))))
 
 ;;; Public interface
+
+(defun build-hover-command ()
+  "Check if command exists and return the hover command."
+  (if (file-exists-p hover-command-path)
+      hover-command-path
+    (error (format "Hover command not found in go path '%s'. Try to configure `hover-command-path`" hover-command-path))))
 
 ;;;###autoload
 (defun hover-run (&optional args)
