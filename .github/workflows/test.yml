@@ -31,7 +31,3 @@ jobs:
       run: |
         set -e
         make EMACS_VERSION="${{ matrix.emacs-version }}" test-ci
-        nix-build --arg emacs "(import <emacs-ci>).${{ matrix.emacs-version }}" -A byte-compile --no-out-link --quiet
-        nix-build --arg emacs "(import <emacs-ci>).${{ matrix.emacs-version }}" -A checkdoc --no-out-link --quiet
-        nix-shell --arg emacs "(import <emacs-ci>).${{ matrix.emacs-version }}" -A package-lint --pure --quiet
-        nix-shell --arg emacs "(import <emacs-ci>).${{ matrix.emacs-version }}" -A buttercup-lint --pure --quiet
