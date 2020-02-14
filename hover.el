@@ -56,7 +56,7 @@
 ;;; Internal
 
 (defmacro hover--with-run-proc (args &rest body)
-  "ARGS is a space-delimited string of CLI flags passed to`hover`.
+  "ARGS is a space-delimited string of CLI flags passed to `hover`.
 Execute BODY while ensuring an inferior `hover` process is running."
   `(hover--from-project-root
     (let* ((buffer (get-buffer-create hover-buffer-name))
@@ -167,7 +167,7 @@ the `hover` process."
 ARGS is a space-delimited string of CLI flags passed to
 `hover`, and can be nil.  Call with a prefix to be prompted for
 args."
- (interactive
+  (interactive
    (list (when current-prefix-arg
            (read-string "Args: "))))
   (hover--with-run-proc
@@ -179,7 +179,7 @@ args."
   "Start `hover run` or hot-reload if already running."
   (interactive)
   (if (hover--running-p)
-     (hover--hot-reload)
+      (hover--hot-reload)
     (hover-run)))
 
 ;;;###autoload
