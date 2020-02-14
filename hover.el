@@ -33,30 +33,16 @@
 
 (defconst hover-buffer-name "*Hover*")
 
-(defvar hover-command-path (concat (getenv "GOPATH") "/bin/hover")
-  "Path to go where hover is installed.")
+(defvar hover-command-path nil
+  "Path to hover command.")
 
 (defvar flutter-sdk-path nil
   "Path to flutter SDK.")
 
+(defvar hover-mode-map (copy-keymap comint-mode-map)
+  "Basic mode map for `hover-run'.")
+
 ;;; Internal
-
-(defun hover--project-get-root ()
-  "Find the root of the current project."
-  (or (locate-dominating-file default-directory "pubspec.yaml")
-      (error "This does not appear to be a Flutter project (pubspec.yaml not found)")))
-
-(defmacro hover--from-project-root (&rest body)
-  "Execute BODY with cwd set to the project root."
-  `(let ((root (hover--project-get-root)))
-     (if root
-         (let ((default-directory root))
-           ,@body)
-       (error "Root of flutter project not found"))))
-
-(defun hover--running-p ()
-  "Return non-nil if the `hover` process is already running."
-  (comint-check-proc hover-buffer-name))
 
 (defmacro hover--with-run-proc (args &rest body)
   "Execute BODY while ensuring an inferior `hover` process is running.
@@ -73,6 +59,41 @@ ARGS is a space-delimited string of CLI flags passed to
           (hover-mode)))
       ,@body)))
 
+(defmacro hover--from-project-root (&rest body)
+  "Execute BODY with cwd set to the project root."
+  `(let ((root (hover--project-get-root)))
+     (if root
+         (let ((default-directory root))
+           ,@body)
+       (error "Root of flutter project not found"))))
+
+(defun hover--make-interactive-function (key name)
+  "Define a function that sends KEY to the `hover` process.
+The function's name will be NAME prefixed with 'hover-'."
+  (let* ((name-str (symbol-name name))
+         (funcname (intern (concat "hover-" name-str))))
+    (defalias funcname
+      `(lambda ()
+         ,(format "Send key '%s' to inferior hover to invoke '%s' function." key name-str)
+         (interactive)
+         (hover--send-command ,key)))))
+
+(defun hover--send-command (command)
+  "Send COMMAND to a running hover process."
+  (hover--with-run-proc
+   nil
+   (let ((proc (get-buffer-process hover-buffer-name)))
+     (comint-send-string proc command))))
+
+(defun hover--project-get-root ()
+  "Find the root of the current project."
+  (or (locate-dominating-file default-directory "pubspec.yaml")
+      (error "This does not appear to be a Flutter project (pubspec.yaml not found)")))
+
+(defun hover--running-p ()
+  "Return non-nil if the `hover` process is already running."
+  (comint-check-proc hover-buffer-name))
+
 (defun hover--initialize ()
   "Helper function to initialize Hover."
   (setq comint-process-echoes nil)
@@ -80,13 +101,50 @@ ARGS is a space-delimited string of CLI flags passed to
     (let ((flutter-command-path (concat (file-name-as-directory flutter-sdk-path) "bin")))
       (setenv "PATH" (concat flutter-command-path ":" (getenv "PATH"))))))
 
+;;; Key bindings
+
+(defconst hover-interactive-keys-alist
+  '(("r" . hot-reload)
+    ("R" . hot-restart)
+    ("h" . help)
+    ("w" . widget-hierarchy)
+    ("t" . rendering-tree)
+    ("L" . layers)
+    ("S" . accessibility-traversal-order)
+    ("U" . accessibility-inverse-hit-test-order)
+    ("i" . inspector)
+    ("p" . construction-lines)
+    ("o" . operating-systems)
+    ("z" . elevation-checker)
+    ("P" . performance-overlay)
+    ("a" . timeline-events)
+    ("s" . screenshot)
+    ("d" . detatch)
+    ("q" . quit)))
+
+(defun hover-register-key (key name)
+  "Register a KEY with NAME recognized by the `hover` process.
+A function `hover-NAME' will be created that sends the key to
+the `hover` process."
+  (let ((func (hover--make-interactive-function key name)))
+    (define-key hover-mode-map key func)))
+
+(defun hover-register-keys (key-alist)
+  "Call `hover-register-key' on all (key . name) pairs in KEY-ALIST."
+  (dolist (item key-alist)
+    (hover-register-key (car item) (cdr item))))
+
+(hover-register-keys hover-interactive-keys-alist)
+
 ;;; Public interface
 
 (defun build-hover-command ()
   "Check if command exists and return the hover command."
-  (if (file-exists-p hover-command-path)
+  (if hover-command-path
       hover-command-path
-    (error (format "Hover command not found in go path '%s'. Try to configure `hover-command-path`" hover-command-path))))
+    (if (executable-find "hover")
+        "hover"
+      (error (format "Hover command not found in go path '%s'. Try to configure `hover-command-path`" hover-command-path)))))
 
 ;;;###autoload
 (defun hover-run (&optional args)
@@ -101,6 +159,13 @@ args."
   (hover--with-run-proc
    args
    (pop-to-buffer-same-window buffer)))
+
+;;;###autoload
+(defun hover-run-or-hot-reload ()
+  "Start `hover run` or hot-reload if already running."
+  (interactive)
+  (unless (hover--running-p)
+    (hover-run)))
 
 ;;;###autoload
 (define-derived-mode hover-mode comint-mode "Hover"
