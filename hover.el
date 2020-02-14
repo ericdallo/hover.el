@@ -1,11 +1,11 @@
-;;; hover.el --- package to use hover with flutter   -*- lexical-binding: t; -*-
+;;; hover.el --- Package to use hover with flutter   -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2020
 
 ;; Author: Eric Dallo
 ;; Version: 0.1.0
 ;; Package-Requires: ((emacs "24.5"))
-;; Keywords: hover, flutter, mobile
+;; Keywords: hover, flutter, mobile, tools
 ;; URL: https://github.com/ericdallo/hover.el
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -36,7 +36,7 @@
 (defvar hover-command-path nil
   "Path to hover command.")
 
-(defvar flutter-sdk-path nil
+(defvar hover-flutter-sdk-path nil
   "Path to flutter SDK.")
 
 (defvar hover-mode-map (copy-keymap comint-mode-map)
@@ -45,15 +45,14 @@
 ;;; Internal
 
 (defmacro hover--with-run-proc (args &rest body)
-  "Execute BODY while ensuring an inferior `hover` process is running.
-ARGS is a space-delimited string of CLI flags passed to
-`hover`, and can be nil."
+  "ARGS is a space-delimited string of CLI flags passed to`hover`.
+Execute BODY while ensuring an inferior `hover` process is running."
   `(hover--from-project-root
     (let* ((buffer (get-buffer-create hover-buffer-name))
            (alive (hover--running-p))
            (arglist (if ,args (split-string ,args))))
       (unless alive
-        (apply #'make-comint-in-buffer "Hover" buffer (build-hover-command) nil "run" arglist))
+        (apply #'make-comint-in-buffer "Hover" buffer (hover-build-hover-command) nil "run" arglist))
       (with-current-buffer buffer
         (unless (derived-mode-p 'hover-mode)
           (hover-mode)))
@@ -97,8 +96,8 @@ The function's name will be NAME prefixed with 'hover-'."
 (defun hover--initialize ()
   "Helper function to initialize Hover."
   (setq comint-process-echoes nil)
-  (when flutter-sdk-path
-    (let ((flutter-command-path (concat (file-name-as-directory flutter-sdk-path) "bin")))
+  (when hover-flutter-sdk-path
+    (let ((flutter-command-path (concat (file-name-as-directory hover-flutter-sdk-path) "bin")))
       (setenv "PATH" (concat flutter-command-path ":" (getenv "PATH"))))))
 
 ;;; Key bindings
@@ -138,7 +137,7 @@ the `hover` process."
 
 ;;; Public interface
 
-(defun build-hover-command ()
+(defun hover-build-hover-command ()
   "Check if command exists and return the hover command."
   (if hover-command-path
       hover-command-path
