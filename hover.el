@@ -93,6 +93,10 @@ The function's name will be NAME prefixed with 'hover-'."
   "Return non-nil if the `hover` process is already running."
   (comint-check-proc hover-buffer-name))
 
+(defun hover--hot-reload ()
+  "Hot reload hover buffer and show window again."
+  (pop-to-buffer-same-window hover-buffer-name t))
+
 (defun hover--initialize ()
   "Helper function to initialize Hover."
   (setq comint-process-echoes nil)
@@ -163,7 +167,8 @@ args."
 (defun hover-run-or-hot-reload ()
   "Start `hover run` or hot-reload if already running."
   (interactive)
-  (unless (hover--running-p)
+  (if (hover--running-p)
+     (hover--hot-reload)
     (hover-run)))
 
 ;;;###autoload
