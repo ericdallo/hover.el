@@ -31,13 +31,24 @@
 
 (require 'comint)
 
-(defconst hover-buffer-name "*Hover*")
+(defgroup hover nil
+  "Package to use hover with flutter."
+  :group 'tools)
 
-(defvar hover-command-path nil
-  "Path to hover command.")
+(defcustom hover-buffer-name "*Hover*"
+  "Buffer name for hover."
+  :type 'string
+  :group 'hover)
 
-(defvar hover-flutter-sdk-path nil
-  "Path to flutter SDK.")
+(defcustom hover-command-path nil
+  "Path to hover command."
+  :type 'string
+  :group 'hover)
+
+(defcustom hover-flutter-sdk-path nil
+  "Path to flutter SDK."
+  :type 'string
+  :group 'hover)
 
 (defvar hover-mode-map (copy-keymap comint-mode-map)
   "Basic mode map for `hover-run'.")
