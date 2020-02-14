@@ -12,6 +12,10 @@ You can install from MELPA with package.el:
 M-x package-install hover
 ```
 
+## Running
+**hover.el** helps you run the `hover` binary interactively as an inferior process. It's designed to work together with `dart-mode`.
+For example you can bind `hover-run-or-hot-reload` to `C-M-z` in dart-mode. While editing your Dart code, just hit `C-M-z` to either run your app, or if it's already running, to hot-reload it.
+
 ## Configuration
 
 | Variable  |  Description  | Default value |
