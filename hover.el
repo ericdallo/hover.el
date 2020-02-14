@@ -61,7 +61,7 @@ Execute BODY while ensuring an inferior `hover` process is running."
   `(hover--from-project-root
     (let* ((buffer (get-buffer-create hover-buffer-name))
            (alive (hover--running-p))
-           (arglist (if ,args (split-string ,args))))
+           (arglist (when ,args (split-string ,args))))
       (unless alive
         (apply #'make-comint-in-buffer "Hover" buffer (hover-build-hover-command) nil "run" arglist))
       (with-current-buffer buffer
