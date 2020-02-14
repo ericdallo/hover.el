@@ -25,7 +25,7 @@ For example you can bind `hover-run-or-hot-reload` to `C-M-z` in dart-mode. Whil
 
 # Example
 
-```lisp
+```elisp
 (use-package hover
   :after dart-mode
   :bind (:map dart-mode-map
