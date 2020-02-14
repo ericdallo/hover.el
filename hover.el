@@ -31,13 +31,24 @@
 
 (require 'comint)
 
-(defconst hover-buffer-name "*Hover*")
+(defgroup hover nil
+  "Package to use hover with flutter."
+  :group 'tools)
 
-(defvar hover-command-path nil
-  "Path to hover command.")
+(defcustom hover-buffer-name "*Hover*"
+  "Buffer name for hover."
+  :type 'string
+  :group 'hover)
 
-(defvar hover-flutter-sdk-path nil
-  "Path to flutter SDK.")
+(defcustom hover-command-path nil
+  "Path to hover command."
+  :type 'string
+  :group 'hover)
+
+(defcustom hover-flutter-sdk-path nil
+  "Path to flutter SDK."
+  :type 'string
+  :group 'hover)
 
 (defvar hover-mode-map (copy-keymap comint-mode-map)
   "Basic mode map for `hover-run'.")
@@ -45,12 +56,12 @@
 ;;; Internal
 
 (defmacro hover--with-run-proc (args &rest body)
-  "ARGS is a space-delimited string of CLI flags passed to`hover`.
+  "ARGS is a space-delimited string of CLI flags passed to `hover`.
 Execute BODY while ensuring an inferior `hover` process is running."
   `(hover--from-project-root
     (let* ((buffer (get-buffer-create hover-buffer-name))
            (alive (hover--running-p))
-           (arglist (if ,args (split-string ,args))))
+           (arglist (when ,args (split-string ,args))))
       (unless alive
         (apply #'make-comint-in-buffer "Hover" buffer (hover-build-hover-command) nil "run" arglist))
       (with-current-buffer buffer
@@ -156,7 +167,7 @@ the `hover` process."
 ARGS is a space-delimited string of CLI flags passed to
 `hover`, and can be nil.  Call with a prefix to be prompted for
 args."
- (interactive
+  (interactive
    (list (when current-prefix-arg
            (read-string "Args: "))))
   (hover--with-run-proc
@@ -168,7 +179,7 @@ args."
   "Start `hover run` or hot-reload if already running."
   (interactive)
   (if (hover--running-p)
-     (hover--hot-reload)
+      (hover--hot-reload)
     (hover-run)))
 
 ;;;###autoload
