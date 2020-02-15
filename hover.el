@@ -50,6 +50,11 @@
   :type 'string
   :group 'hover)
 
+(defcustom hover-hot-reload-on-save nil
+  "If non-nil, triggers hot-reload on buffer save."
+  :type '(choice (const nil) (other t))
+  :group 'hover)
+
 (defvar hover-mode-map (copy-keymap comint-mode-map)
   "Basic mode map for `hover-run'.")
 
@@ -106,8 +111,15 @@ The function's name will be NAME prefixed with 'hover-'."
 
 (defun hover--run-command-on-hover-buffer (command)
   "Pop hover buffer window and run COMMAND."
-  (pop-to-buffer hover-buffer-name nil t)
+  (let ((current (current-buffer)))
+    (pop-to-buffer hover-buffer-name nil t)
+    (select-window (get-buffer-window current)))
   (hover--send-command command))
+
+(defun hover--hot-reload ()
+    "Hot reload hover if it is already running."
+  (when (hover--running-p)
+    (hover--run-command-on-hover-buffer "r")))
 
 ;;; Key bindings
 
@@ -191,7 +203,9 @@ args."
   (setq comint-process-echoes nil)
   (when hover-flutter-sdk-path
     (let ((flutter-command-path (concat (file-name-as-directory hover-flutter-sdk-path) "bin")))
-      (setenv "PATH" (concat flutter-command-path ":" (getenv "PATH"))))))
+      (setenv "PATH" (concat flutter-command-path ":" (getenv "PATH")))))
+  (when hover-hot-reload-on-save
+    (add-hook 'after-save-hook 'hover--hot-reload)))
 
 (provide 'hover)
 ;;; hover.el ends here
