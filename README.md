@@ -17,7 +17,7 @@ M-x package-install hover
 ```
 
 ## Running
-**hover.el** helps you run the `hover` binary interactively as an inferior process. It's designed to work together with `dart-mode`.
+**hover.el** helps you run the `hover` binary interactively as an inferior It's. process designed to work together with `dart-mode`.
 For example you can bind `hover-run-or-hot-reload` to `C-M-z` in dart-mode. While editing your Dart code, just hit `C-M-z` to either run your app, or if it's already running, to hot-reload it.
 
 ## Configuration
@@ -33,15 +33,21 @@ For example you can bind `hover-run-or-hot-reload` to `C-M-z` in dart-mode. Whil
 The following example uses all available configurations above, you can customize as you wish.
 
 ```elisp
+;; Assuming usage with dart-mode
+(use-package dart-mode
+  :custom
+  (dart-sdk-path (concat (getenv "HOME") "/flutter/bin/cache/dark-sdk/")
+   dart-format-on-save t))
+
 (use-package hover
   :after dart-mode
   :bind (:map dart-mode-map
               ("C-M-z" . #'hover-run-or-hot-reload)
               ("C-M-x" . #'hover-run-or-hot-restart))
   :custom
-  (setq flutter-sdk-path (concat (getenv "HOME") "/flutter") ; remove if `flutter` is already in $PATH
-        hover-command-path (concat (getenv "GOPATH") "/bin/hover") ; remove if `hover` is already in $PATH
-        hover-hot-reload-on-save t))
+  (flutter-sdk-path (concat (getenv "HOME") "/flutter") ; remove if `flutter` is already in $PATH
+   hover-command-path (concat (getenv "GOPATH") "/bin/hover") ; remove if `hover` is already in $PATH
+   hover-hot-reload-on-save t))
 ```
 
 
