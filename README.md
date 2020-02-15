@@ -4,7 +4,9 @@
 
 # hover.el
 
-_Emacs tool for working with [hover](https://github.com/go-flutter-desktop/hover) for **flutter**_
+_Emacs tool for running **flutter** mobile apps on **desktop** using [hover](https://github.com/go-flutter-desktop/hover)._
+
+If you wants to run flutter on a emulator from emacs, you should check [flutter.el](https://github.com/amake/flutter.el).
 
 ## Installation
 
@@ -43,4 +45,4 @@ The following example uses all available configurations above, you can customize
 ```
 
 
-_thanks to [flutter.el](https://github.com/amake/flutter.el) which inspired this project_
+_Thanks to [flutter.el](https://github.com/amake/flutter.el) which inspired this project._
