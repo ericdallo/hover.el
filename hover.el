@@ -109,13 +109,6 @@ The function's name will be NAME prefixed with 'hover-'."
   (pop-to-buffer hover-buffer-name nil t)
   (hover--send-command command))
 
-(defun hover--initialize ()
-  "Helper function to initialize Hover."
-  (setq comint-process-echoes nil)
-  (when hover-flutter-sdk-path
-    (let ((flutter-command-path (concat (file-name-as-directory hover-flutter-sdk-path) "bin")))
-      (setenv "PATH" (concat flutter-command-path ":" (getenv "PATH"))))))
-
 ;;; Key bindings
 
 (defconst hover-interactive-keys-alist
@@ -194,9 +187,11 @@ args."
 ;;;###autoload
 (define-derived-mode hover-mode comint-mode "Hover"
   "Major mode for `hover-run'."
-  (setq comint-prompt-read-only t))
-
-(add-hook 'hover-mode-hook #'hover--initialize)
+  (setq comint-prompt-read-only t)
+  (setq comint-process-echoes nil)
+  (when hover-flutter-sdk-path
+    (let ((flutter-command-path (concat (file-name-as-directory hover-flutter-sdk-path) "bin")))
+      (setenv "PATH" (concat flutter-command-path ":" (getenv "PATH"))))))
 
 (provide 'hover)
 ;;; hover.el ends here
