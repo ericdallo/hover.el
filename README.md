@@ -2,6 +2,8 @@
 
 [![MELPA](https://melpa.org/packages/hover-badge.svg)](https://melpa.org/#/hover)
 
+[![Actions Status](https://github.com/ericdallo/hover.el/workflows/Tests%20CI/badge.svg)](https://github.com/ericdallo/hover.el/actions)
+
 # hover.el
 
 _Emacs tool for running **flutter** mobile apps on **desktop** using [hover](https://github.com/go-flutter-desktop/hover)._
