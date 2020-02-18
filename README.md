@@ -8,6 +8,8 @@
 
 _Emacs tool for running **flutter** mobile apps on **desktop** using [hover](https://github.com/go-flutter-desktop/hover)._
 
+<img src="https://github.com/ericdallo/hover.el/blob/screenshots/usage.gif"/>
+
 If you wants to run flutter on a emulator from emacs, you should check [flutter.el](https://github.com/amake/flutter.el).
 
 ## Installation
