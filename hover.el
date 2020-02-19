@@ -58,6 +58,7 @@
 (defvar hover-mode-map (copy-keymap comint-mode-map)
   "Basic mode map for `hover-run'.")
 
+
 ;;; Internal
 
 (defmacro hover--with-run-proc (args &rest body)
@@ -121,6 +122,7 @@ The function's name will be NAME prefixed with 'hover-'."
   (when (hover--running-p)
     (hover--run-command-on-hover-buffer "r")))
 
+
 ;;; Key bindings
 
 (defconst hover-interactive-keys-alist
@@ -156,6 +158,7 @@ the `hover` process."
 
 (hover-register-keys hover-interactive-keys-alist)
 
+
 ;;; Public interface
 
 (defun hover-build-hover-command ()
