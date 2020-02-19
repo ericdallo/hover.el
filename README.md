@@ -48,11 +48,10 @@ The following example uses all available configurations above, you can customize
   :bind (:map dart-mode-map
               ("C-M-z" . #'hover-run-or-hot-reload)
               ("C-M-x" . #'hover-run-or-hot-restart))
-  :custom
-  (flutter-sdk-path (concat (getenv "HOME") "/flutter") ; remove if `flutter` is already in $PATH
-   hover-command-path (concat (getenv "GOPATH") "/bin/hover") ; remove if `hover` is already in $PATH
-   hover-hot-reload-on-save t))
+  :init
+  (setq flutter-sdk-path (concat (getenv "HOME") "/flutter") ; remove if `flutter` is already in $PATH
+        hover-command-path (concat (getenv "GOPATH") "/bin/hover") ; remove if `hover` is already in $PATH
+        hover-hot-reload-on-save t))
 ```
-
 
 _Thanks to [flutter.el](https://github.com/amake/flutter.el) which inspired this project._
