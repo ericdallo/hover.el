@@ -102,8 +102,8 @@ The function's name will be NAME prefixed with 'hover-'."
 
 (defun hover--project-get-root ()
   "Find the root of the current project."
-  (or (locate-dominating-file default-directory "pubspec.yaml")
-      (error "This does not appear to be a Flutter project (pubspec.yaml not found)")))
+  (or (locate-dominating-file default-directory "go")
+      (error "This does not appear to be a Hover project (go folder not found), did you already run `hover init`?")))
 
 (defun hover--running-p ()
   "Return non-nil if the `hover` process is already running."
