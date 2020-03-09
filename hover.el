@@ -208,7 +208,7 @@ args."
     (let ((flutter-command-path (concat (file-name-as-directory hover-flutter-sdk-path) "bin")))
       (setenv "PATH" (concat flutter-command-path ":" (getenv "PATH")))))
   (when hover-hot-reload-on-save
-    (add-hook 'after-save-hook 'hover--hot-reload)))
+    (add-hook 'after-save-hook #'hover--hot-reload)))
 
 (provide 'hover)
 ;;; hover.el ends here
