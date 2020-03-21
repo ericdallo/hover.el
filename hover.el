@@ -55,6 +55,23 @@
   :type '(choice (const nil) (other t))
   :group 'hover)
 
+(defcustom hover-screenshot-path nil
+  "If non-nil, save hover screenshot on specified folder.
+Default to project root."
+  :type 'string
+  :group 'hover)
+
+(defcustom hover-screenshot-prefix "hover-"
+  "Prefix for file name on `hover-take-screenshot`."
+  :type 'string
+  :group 'hover)
+
+(defcustom hover-observatory-uri "http://127.0.0.1:50300"
+  "Hover custom observatory-uri.
+Default is hover's default uri"
+  :type 'string
+  :group 'hover)
+
 (defvar hover-mode-map (copy-keymap comint-mode-map)
   "Basic mode map for `hover-run'.")
 
@@ -103,7 +120,7 @@ The function's name will be NAME prefixed with 'hover-'."
 
 (defun hover--project-get-root ()
   "Find the root of the current project."
-  (or (locate-dominating-file default-directory "go")
+  (or (expand-file-name (locate-dominating-file default-directory "go"))
       (error "This does not appear to be a Hover project (go folder not found), did you already run `hover init`?")))
 
 (defun hover--running-p ()
@@ -121,6 +138,18 @@ The function's name will be NAME prefixed with 'hover-'."
     "Hot reload hover if it is already running."
   (when (hover--running-p)
     (hover--run-command-on-hover-buffer "r")))
+
+(defun hover--build-screenshot-file-name ()
+  "Build screenshot file name with a timestamp."
+  (let ((formatted-timestamp (format-time-string "%Y-%m-%dT%T")))
+    (concat hover-screenshot-prefix formatted-timestamp ".png")))
+
+(defun hover--take-screenshot (file-path uri)
+  "Run `fluter screenshot` to take a screenshot of hover application.
+Save on FILE-PATH and use the observatory URI given."
+  (compilation-start
+   (format "%s screenshot --type=rasterizer --out=%s --observatory-uri=%s" (hover-build-flutter-command) file-path uri)
+   t))
 
 
 ;;; Key bindings
@@ -140,7 +169,6 @@ The function's name will be NAME prefixed with 'hover-'."
     ("z" . elevation-checker)
     ("P" . performance-overlay)
     ("a" . timeline-events)
-    ("s" . screenshot)
     ("d" . detatch)
     ("q" . quit)))
 
@@ -168,6 +196,12 @@ the `hover` process."
     (if (executable-find "hover")
         "hover"
       (error (format "Hover command not found in go path '%s'. Try to configure `hover-command-path`" hover-command-path)))))
+
+(defun hover-build-flutter-command ()
+  "Check if command exists and return the flutter command."
+  (if hover-flutter-sdk-path
+      (concat (file-name-as-directory hover-flutter-sdk-path) "bin/flutter")
+    "flutter"))
 
 ;;;###autoload
 (defun hover-run (&optional args)
@@ -198,6 +232,19 @@ args."
   (if (hover--running-p)
      (hover--run-command-on-hover-buffer "R")
     (hover-run)))
+
+; flutter screenshot --observatory-uri=http://127.0.0.1:50300 --type=rasterizer
+;;;###autoload
+(defun hover-take-screenshot ()
+  "Take screenshot of current `hover` application using `flutter screenshot`.
+Saves screenshot on `hover-screenshot-path`."
+  (interactive)
+  (let* ((screenshot-path (or (if hover-screenshot-path
+                                  (file-name-as-directory hover-screenshot-path))
+                              (hover--project-get-root)))
+         (file-name (hover--build-screenshot-file-name))
+         (file-path (concat screenshot-path file-name)))
+    (hover--take-screenshot file-path hover-observatory-uri)))
 
 ;;;###autoload
 (define-derived-mode hover-mode comint-mode "Hover"
