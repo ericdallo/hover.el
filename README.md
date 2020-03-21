@@ -29,12 +29,15 @@ For example you can bind `hover-run-or-hot-reload` to `C-M-z` in dart-mode. Whil
 | Variable  |  Description  | Default value |
 | ------------------- | ------------------- | ----------------|
 | `hover-command-path` |  Path to the hover executable command | tries to use `hover` if exists in $PATH |
-|  `hover-flutter-sdk-path` |  Path to flutter sdk path to find flutter executable command | tries to find `flutter` executable in $PATH |
+| `hover-flutter-sdk-path` |  Path to flutter sdk path to find flutter executable command | tries to find `flutter` executable in $PATH |
 | `hover-hot-reload-on-save` | On buffer save, triggers hover hot-reload (if hover is running) | nil |
+| `hover-screenshot-path` | If non-nil, save hover screenshot on specified folder. | project root |
+| `hover-screenshot-prefix` | Prefix for file name on `hover-take-screenshot`. | hover- |
+| `hover-observatory-uri` | Hover custom observatory-uri. | http://127.0.0.1:50300 |
 
 # Example
 
-The following example uses all available configurations above, you can customize as you wish.
+The following example uses **all available** configurations above, you can customize as you wish.
 
 ```elisp
 ;; Assuming usage with dart-mode
@@ -47,11 +50,15 @@ The following example uses all available configurations above, you can customize
   :after dart-mode
   :bind (:map dart-mode-map
               ("C-M-z" . #'hover-run-or-hot-reload)
-              ("C-M-x" . #'hover-run-or-hot-restart))
+              ("C-M-x" . #'hover-run-or-hot-restart)
+              ("C-M-p" . #'hover-take-screenshot'))
   :init
   (setq flutter-sdk-path (concat (getenv "HOME") "/flutter") ; remove if `flutter` is already in $PATH
         hover-command-path (concat (getenv "GOPATH") "/bin/hover") ; remove if `hover` is already in $PATH
-        hover-hot-reload-on-save t))
+        hover-hot-reload-on-save t
+        hover-screenshot-path (concat (getenv "HOME") "/Pictures"
+        hover-screenshot-prefix "my-prefix-"
+        hover-observatory-uri "http://my-custom-host:50300")))
 ```
 
 _Thanks to [flutter.el](https://github.com/amake/flutter.el) which inspired this project._
