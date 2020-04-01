@@ -1,7 +1,6 @@
 <img align="right"  src="https://github.com/go-flutter-desktop/hover/blob/master/assets/app/icon.png" width="64"/>
 
 [![MELPA](https://melpa.org/packages/hover-badge.svg)](https://melpa.org/#/hover)
-
 [![Actions Status](https://github.com/ericdallo/hover.el/workflows/Tests%20CI/badge.svg)](https://github.com/ericdallo/hover.el/actions)
 
 # hover.el
