@@ -1,5 +1,6 @@
 <img align="right"  src="https://github.com/go-flutter-desktop/hover/blob/master/assets/app/icon.png" width="64"/>
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e4f033c5a0b7449199c56e0943f1949a)](https://app.codacy.com/manual/ericdallo/hover.el?utm_source=github.com&utm_medium=referral&utm_content=ericdallo/hover.el&utm_campaign=Badge_Grade_Dashboard)
 [![MELPA](https://melpa.org/packages/hover-badge.svg)](https://melpa.org/#/hover)
 [![Actions Status](https://github.com/ericdallo/hover.el/workflows/Tests%20CI/badge.svg)](https://github.com/ericdallo/hover.el/actions)
 
