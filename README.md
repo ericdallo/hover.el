@@ -15,7 +15,7 @@ If you wants to run flutter on a emulator from emacs, you should check [flutter.
 
 You can install from MELPA with package.el:
 
-```
+```bash
 M-x package-install hover
 ```
 
@@ -25,16 +25,16 @@ For example you can bind `hover-run-or-hot-reload` to `C-M-z` in dart-mode. Whil
 
 ## Configuration
 
-| Variable  |  Description  | Default value |
-| ------------------- | ------------------- | ----------------|
-| `hover-command-path` |  Path to the hover executable command | tries to use `hover` if exists in $PATH |
-| `hover-flutter-sdk-path` |  Path to flutter sdk path to find flutter executable command | tries to find `flutter` executable in $PATH |
-| `hover-hot-reload-on-save` | On buffer save, triggers hover hot-reload (if hover is running) | nil |
-| `hover-screenshot-path` | If non-nil, save hover screenshot on specified folder. | project root |
-| `hover-screenshot-prefix` | Prefix for file name on `hover-take-screenshot`. | hover- |
-| `hover-observatory-uri` | Hover custom observatory-uri. | http://127.0.0.1:50300 |
+| Variable                   | Description                                                     | Default value                               |
+| -------------------------- | --------------------------------------------------------------- | ------------------------------------------- |
+| `hover-command-path`       | Path to the hover executable command                            | tries to use `hover` if exists in $PATH     |
+| `hover-flutter-sdk-path`   | Path to flutter sdk path to find flutter executable command     | tries to find `flutter` executable in $PATH |
+| `hover-hot-reload-on-save` | On buffer save, triggers hover hot-reload (if hover is running) | nil                                         |
+| `hover-screenshot-path`    | If non-nil, save hover screenshot on specified folder.          | project root                                |
+| `hover-screenshot-prefix`  | Prefix for file name on `hover-take-screenshot`.                | hover-                                      |
+| `hover-observatory-uri`    | Hover custom observatory-uri.                                   | `http://127.0.0.1:50300`                    |
 
-# Example
+## Example
 
 The following example uses **all available** configurations above, you can customize as you wish.
 
