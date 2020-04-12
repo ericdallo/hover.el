@@ -2,6 +2,7 @@
 
 [![MELPA](https://melpa.org/packages/hover-badge.svg)](https://melpa.org/#/hover)
 [![Actions Status](https://github.com/ericdallo/hover.el/workflows/Tests%20CI/badge.svg)](https://github.com/ericdallo/hover.el/actions)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/0286115a90df4301a84890d31c02b55b)](https://www.codacy.com/manual/ericdallo/hover.el?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ericdallo/hover.el&amp;utm_campaign=Badge_Grade)
 
 # hover.el
 
