@@ -10,7 +10,7 @@ _Emacs tool for running **flutter** mobile apps on **desktop** using [hover](htt
 
 <img src="https://github.com/ericdallo/hover.el/blob/screenshots/usage.gif"/>
 
-If you wants to run flutter on a emulator from emacs, you should check [flutter.el](https://github.com/amake/flutter.el).
+If you want to run flutter on a emulator from Emacs, you should check [flutter.el](https://github.com/amake/flutter.el).
 
 ## Installation
 
@@ -26,14 +26,15 @@ For example you can bind `hover-run-or-hot-reload` to `C-M-z` in dart-mode. Whil
 
 ## Configuration
 
-| Variable                   | Description                                                     | Default value                               |
-| -------------------------- | --------------------------------------------------------------- | ------------------------------------------- |
-| `hover-command-path`       | Path to the hover executable command                            | tries to use `hover` if exists in $PATH     |
-| `hover-flutter-sdk-path`   | Path to flutter sdk path to find flutter executable command     | tries to find `flutter` executable in $PATH |
-| `hover-hot-reload-on-save` | On buffer save, triggers hover hot-reload (if hover is running) | nil                                         |
-| `hover-screenshot-path`    | If non-nil, save hover screenshot on specified folder.          | project root                                |
-| `hover-screenshot-prefix`  | Prefix for file name on `hover-take-screenshot`.                | hover-                                      |
-| `hover-observatory-uri`    | Hover custom observatory-uri.                                   | `http://127.0.0.1:50300`                    |
+| Variable                            | Description                                                     | Default value                               |
+| --------------------------          | --------------------------------------------------------------- | ------------------------------------------- |
+| `hover-command-path`                | Path to the hover executable command                            | tries to use `hover` if exists in $PATH     |
+| `hover-flutter-sdk-path`            | Path to flutter sdk path to find flutter executable command     | tries to find `flutter` executable in $PATH |
+| `hover-hot-reload-on-save`          | On buffer save, triggers hover hot-reload (if hover is running) | `nil`                                       |
+| `hover-screenshot-path`             | If non-nil, save hover screenshot on specified folder.          | project root                                |
+| `hover-screenshot-prefix`           | Prefix for file name on `hover-take-screenshot`.                | hover-                                      |
+| `hover-observatory-uri`             | Hover custom observatory-uri.                                   | `http://127.0.0.1:50300`                    |
+| `hover-clear-buffer-on-hot-restart` | Calls `hover-clear-buffer` after a `hover-hot-restart`          | `nil`                                       |
 
 ## Example
 
@@ -58,7 +59,8 @@ The following example uses **all available** configurations above, you can custo
         hover-hot-reload-on-save t
         hover-screenshot-path (concat (getenv "HOME") "/Pictures"
         hover-screenshot-prefix "my-prefix-"
-        hover-observatory-uri "http://my-custom-host:50300")))
+        hover-observatory-uri "http://my-custom-host:50300"
+        hover-clear-buffer-on-hot-restart t)))
 ```
 
 _Thanks to [flutter.el](https://github.com/amake/flutter.el) which inspired this project._
