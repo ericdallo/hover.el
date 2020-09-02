@@ -1,9 +1,9 @@
-;;; hover.el --- Package to use hover with flutter   -*- lexical-binding: t; -*-
+;;; hover.el --- Package to use hover with flutter -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2020
 
 ;; Author: Eric Dallo
-;; Version: 0.1.0
+;; Version: 0.2
 ;; Package-Requires: ((emacs "24.5"))
 ;; Keywords: hover, flutter, mobile, tools
 ;; URL: https://github.com/ericdallo/hover.el
@@ -52,7 +52,7 @@
 
 (defcustom hover-hot-reload-on-save nil
   "If non-nil, triggers hot-reload on buffer save."
-  :type '(choice (const nil) (other t))
+  :type 'boolean
   :group 'hover)
 
 (defcustom hover-screenshot-path nil
@@ -70,6 +70,11 @@ Default to project root."
   "Hover custom observatory-uri.
 Default is hover's default uri"
   :type 'string
+  :group 'hover)
+
+(defcustom hover-clear-buffer-on-hot-restart nil
+  "Clear hover buffer after a hot restart."
+  :type 'boolean
   :group 'hover)
 
 (defvar hover-mode-map (copy-keymap comint-mode-map)
@@ -134,11 +139,6 @@ The function's name will be NAME prefixed with 'hover-'."
     (select-window (get-buffer-window current)))
   (hover--send-command command))
 
-(defun hover--hot-reload ()
-    "Hot reload hover if it is already running."
-  (when (hover--running-p)
-    (hover--run-command-on-hover-buffer "r")))
-
 (defun hover--build-screenshot-file-name ()
   "Build screenshot file name with a timestamp."
   (let ((formatted-timestamp (format-time-string "%Y-%m-%dT%T")))
@@ -150,6 +150,14 @@ Save on FILE-PATH and use the observatory URI given."
   (compilation-start
    (format "%s screenshot --type=rasterizer --out=%s --observatory-uri=%s" (hover-build-flutter-command) file-path uri)
    t))
+
+(defun hover--clear-buffer ()
+  "Clear hover buffer."
+  (if (hover--running-p)
+      (with-current-buffer hover-buffer-name
+        (let ((comint-buffer-maximum-size 0))
+          (comint-truncate-buffer)))
+    (error "Hover is not running")))
 
 
 ;;; Key bindings
@@ -203,6 +211,45 @@ the `hover` process."
       (concat (file-name-as-directory hover-flutter-sdk-path) "bin/flutter")
     "flutter"))
 
+(defun hover-run-or-hot-reload ()
+  "Start `hover run` or hot-reload if already running."
+  (interactive)
+  (if (hover--running-p)
+      (hover--run-command-on-hover-buffer "r")
+    (hover-run)))
+
+(defun hover-run-or-hot-restart ()
+  "Start `hover run` or hot-restart if already running."
+  (interactive)
+  (if (hover--running-p)
+      (progn
+        (hover--run-command-on-hover-buffer "R")
+        (when hover-clear-buffer-on-hot-restart
+          (hover--clear-buffer)))
+    (hover-run)))
+
+(defun hover-take-screenshot ()
+  "Take screenshot of current `hover` application using `flutter screenshot`.
+Saves screenshot on `hover-screenshot-path`."
+  (interactive)
+  (let* ((screenshot-path (or (if hover-screenshot-path
+                                  (file-name-as-directory hover-screenshot-path))
+                              (hover--project-get-root)))
+         (file-name (hover--build-screenshot-file-name))
+         (file-path (concat screenshot-path file-name)))
+    (hover--take-screenshot file-path hover-observatory-uri)))
+
+(defun hover-clear-buffer ()
+  "Clear current hover buffer output."
+  (interactive)
+  (hover--clear-buffer))
+
+;;;###autoload
+(defun hover-hot-reload ()
+    "Hot reload hover if it is already running."
+  (when (hover--running-p)
+    (hover--run-command-on-hover-buffer "r")))
+
 ;;;###autoload
 (defun hover-run (&optional args)
   "Execute `hover run` inside Emacs.
@@ -218,35 +265,6 @@ args."
    (pop-to-buffer-same-window buffer)))
 
 ;;;###autoload
-(defun hover-run-or-hot-reload ()
-  "Start `hover run` or hot-reload if already running."
-  (interactive)
-  (if (hover--running-p)
-      (hover--run-command-on-hover-buffer "r")
-    (hover-run)))
-
-;;;###autoload
-(defun hover-run-or-hot-restart ()
-  "Start `hover run` or hot-restart if already running."
-  (interactive)
-  (if (hover--running-p)
-     (hover--run-command-on-hover-buffer "R")
-    (hover-run)))
-
-; flutter screenshot --observatory-uri=http://127.0.0.1:50300 --type=rasterizer
-;;;###autoload
-(defun hover-take-screenshot ()
-  "Take screenshot of current `hover` application using `flutter screenshot`.
-Saves screenshot on `hover-screenshot-path`."
-  (interactive)
-  (let* ((screenshot-path (or (if hover-screenshot-path
-                                  (file-name-as-directory hover-screenshot-path))
-                              (hover--project-get-root)))
-         (file-name (hover--build-screenshot-file-name))
-         (file-path (concat screenshot-path file-name)))
-    (hover--take-screenshot file-path hover-observatory-uri)))
-
-;;;###autoload
 (define-derived-mode hover-mode comint-mode "Hover"
   "Major mode for `hover-run'."
   (setq comint-prompt-read-only t)
@@ -255,7 +273,7 @@ Saves screenshot on `hover-screenshot-path`."
     (let ((flutter-command-path (concat (file-name-as-directory hover-flutter-sdk-path) "bin")))
       (setenv "PATH" (concat flutter-command-path ":" (getenv "PATH")))))
   (when hover-hot-reload-on-save
-    (add-hook 'after-save-hook #'hover--hot-reload)))
+    (add-hook 'after-save-hook #'hover-hot-reload)))
 
 (provide 'hover)
 ;;; hover.el ends here
