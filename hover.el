@@ -3,7 +3,7 @@
 ;; Copyright (C) 2020
 
 ;; Author: Eric Dallo
-;; Version: 0.2
+;; Version: 1.2.1
 
 ;; Package-Requires: ((emacs "25.2") (dash "2.14.1"))
 ;; Keywords: hover, flutter, mobile, tools
