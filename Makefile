@@ -1,15 +1,76 @@
-test-ci: test
-test-ci: NIX_ARGS = --arg emacs "(import <emacs-ci>).${EMACS_VERSION}"
+SHELL=/usr/bin/env bash
 
-test: test-check-doc test-compile test-lint
+EMACS ?= emacs
+CASK ?= cask
 
-test-check-doc:
-	nix-build $(NIX_ARGS) --no-out-link --quiet -A checkdoc package-checker.nix
+INIT="(progn \
+  (require 'package) \
+  (push '(\"melpa\" . \"https://melpa.org/packages/\") package-archives) \
+  (package-initialize) \
+  (package-refresh-contents))"
 
-test-compile:
-	nix-build --no-out-link --quiet -A byte-compile package-checker.nix
+LINT="(progn \
+		(unless (package-installed-p 'package-lint) \
+		  (package-install 'package-lint)) \
+		(require 'package-lint) \
+		(setq package-lint-main-file \"hover.el\") \
+		(package-lint-batch-and-exit))"
 
-test-lint:
-	nix-shell --pure --quiet -A package-lint package-checker.nix
+build:
+	cask install
 
-.PHONY: test test-ci test-default test-26 test-25 test-24
+ci: clean build compile checkdoc lint
+
+compile:
+	@echo "Compiling..."
+	@$(CASK) $(EMACS) -Q --batch \
+		-L . \
+		--eval '(setq byte-compile-error-on-warn t)' \
+		-f batch-byte-compile \
+		*.el
+
+checkdoc:
+	$(eval LOG := $(shell mktemp -d)/checklog.log)
+	@touch $(LOG)
+
+	@echo "checking doc..."
+
+	@for f in *.el ; do \
+		$(CASK) $(EMACS) -Q --batch \
+			-L . \
+			--eval "(checkdoc-file \"$$f\")" \
+			*.el 2>&1 | tee -a $(LOG); \
+	done
+
+	@if [ -s $(LOG) ]; then \
+		echo ''; \
+		exit 1; \
+	else \
+		echo 'checkdoc ok!'; \
+	fi
+
+lint:
+	@echo "package linting..."
+	@$(CASK) $(EMACS) -Q --batch \
+		-L . \
+		--eval $(INIT) \
+		--eval $(LINT) \
+		*.el
+
+clean:
+	rm -rf .cask *.elc
+
+tag:
+	$(eval TAG := $(filter-out $@,$(MAKECMDGOALS)))
+	sed -i "s/;; Version: [0-9]\+.[0-9]\+.[0-9]\+/;; Version: $(TAG)/g" hover.el
+	git add hover.el
+	git commit -m "Bump hover: $(TAG)"
+	git tag $(TAG)
+	git push origin HEAD
+	git push origin --tags
+
+# Allow args to make commands
+%:
+	@:
+
+.PHONY: build ci compile checkdoc lint clean tag

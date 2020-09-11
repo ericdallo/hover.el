@@ -4,7 +4,8 @@
 
 ;; Author: Eric Dallo
 ;; Version: 0.2
-;; Package-Requires: ((emacs "24.5"))
+
+;; Package-Requires: ((emacs "25.2") (dash "2.14.1"))
 ;; Keywords: hover, flutter, mobile, tools
 ;; URL: https://github.com/ericdallo/hover.el
 
@@ -30,6 +31,7 @@
 ;;; Code:
 
 (require 'comint)
+(require 'dash)
 
 (defgroup hover nil
   "Package to use hover with flutter."
@@ -83,27 +85,37 @@ Default is hover's default uri"
 
 ;;; Internal
 
-(defmacro hover--with-run-proc (args &rest body)
+(defun hover--build-hover-command ()
+  "Check if command exists and return the hover command."
+  (or hover-command-path
+      (-some-> (executable-find "hover")
+        file-truename)
+      (error "Hover command not found in path.  Try to configure `hover-command-path`")))
+
+(defun hover--build-flutter-command ()
+  "Check if command exists and return the flutter command."
+  (or (-some-> hover-flutter-sdk-path
+        file-name-as-directory
+        (concat "bin/flutter"))
+      (executable-find "flutter")))
+
+(defun hover--project-get-root ()
+  "Find the root of the current project."
+  (or (expand-file-name (locate-dominating-file default-directory "go"))
+      (error "This does not appear to be a Hover project (go folder not found), did you already run `hover init`?")))
+
+(defmacro hover--with-running-proccess (args &rest body)
   "ARGS is a space-delimited string of CLI flags passed to `hover`.
 Execute BODY while ensuring an inferior `hover` process is running."
-  `(hover--from-project-root
-    (let* ((buffer (get-buffer-create hover-buffer-name))
-           (alive (hover--running-p))
-           (arglist (when ,args (split-string ,args))))
-      (unless alive
-        (apply #'make-comint-in-buffer "Hover" buffer (hover-build-hover-command) nil "run" arglist))
-      (with-current-buffer buffer
-        (unless (derived-mode-p 'hover-mode)
-          (hover-mode)))
-      ,@body)))
-
-(defmacro hover--from-project-root (&rest body)
-  "Execute BODY with cwd set to the project root."
-  `(let ((root (hover--project-get-root)))
-     (if root
-         (let ((default-directory root))
-           ,@body)
-       (error "Root of flutter project not found"))))
+  `(let* ((buffer (get-buffer-create hover-buffer-name))
+          (alive (hover--running-p))
+          (arglist (when ,args (split-string ,args))))
+     (with-current-buffer buffer
+       (unless (derived-mode-p 'hover-mode)
+         (hover-mode))
+       (unless alive
+         (apply #'make-comint-in-buffer "Hover" buffer (hover--build-hover-command) nil "run" arglist)))
+     ,@body))
 
 (defun hover--make-interactive-function (key name)
   "Define a function that sends KEY to the `hover` process.
@@ -118,15 +130,10 @@ The function's name will be NAME prefixed with 'hover-'."
 
 (defun hover--send-command (command)
   "Send COMMAND to a running hover process."
-  (hover--with-run-proc
+  (hover--with-running-proccess
    nil
    (let ((proc (get-buffer-process hover-buffer-name)))
      (comint-send-string proc command))))
-
-(defun hover--project-get-root ()
-  "Find the root of the current project."
-  (or (expand-file-name (locate-dominating-file default-directory "go"))
-      (error "This does not appear to be a Hover project (go folder not found), did you already run `hover init`?")))
 
 (defun hover--running-p ()
   "Return non-nil if the `hover` process is already running."
@@ -148,7 +155,7 @@ The function's name will be NAME prefixed with 'hover-'."
   "Run `fluter screenshot` to take a screenshot of hover application.
 Save on FILE-PATH and use the observatory URI given."
   (compilation-start
-   (format "%s screenshot --type=rasterizer --out=%s --observatory-uri=%s" (hover-build-flutter-command) file-path uri)
+   (format "%s screenshot --type=rasterizer --out=%s --observatory-uri=%s" (hover--build-flutter-command) file-path uri)
    t))
 
 (defun hover--clear-buffer ()
@@ -197,20 +204,6 @@ the `hover` process."
 
 ;;; Public interface
 
-(defun hover-build-hover-command ()
-  "Check if command exists and return the hover command."
-  (if hover-command-path
-      hover-command-path
-    (if (executable-find "hover")
-        "hover"
-      (error (format "Hover command not found in go path '%s'. Try to configure `hover-command-path`" hover-command-path)))))
-
-(defun hover-build-flutter-command ()
-  "Check if command exists and return the flutter command."
-  (if hover-flutter-sdk-path
-      (concat (file-name-as-directory hover-flutter-sdk-path) "bin/flutter")
-    "flutter"))
-
 (defun hover-run-or-hot-reload ()
   "Start `hover run` or hot-reload if already running."
   (interactive)
@@ -245,10 +238,10 @@ Saves screenshot on `hover-screenshot-path`."
   (hover--clear-buffer))
 
 ;;;###autoload
-(defun hover-hot-reload ()
-    "Hot reload hover if it is already running."
-  (when (hover--running-p)
-    (hover--run-command-on-hover-buffer "r")))
+(defun hover-kill ()
+  "Kill hover buffer."
+  (with-current-buffer hover-buffer-name
+    (kill-buffer)))
 
 ;;;###autoload
 (defun hover-run (&optional args)
@@ -260,7 +253,7 @@ args."
   (interactive
    (list (when current-prefix-arg
            (read-string "Args: "))))
-  (hover--with-run-proc
+  (hover--with-running-proccess
    args
    (pop-to-buffer-same-window buffer)))
 
@@ -269,11 +262,14 @@ args."
   "Major mode for `hover-run'."
   (setq comint-prompt-read-only t)
   (setq comint-process-echoes nil)
-  (when hover-flutter-sdk-path
-    (let ((flutter-command-path (concat (file-name-as-directory hover-flutter-sdk-path) "bin")))
-      (setenv "PATH" (concat flutter-command-path ":" (getenv "PATH")))))
+  (setq process-connection-type nil)
+  (setq default-directory (hover--project-get-root))
+  (setenv "PATH" (concat (hover--build-flutter-command) ":" (getenv "PATH")))
+  (setenv "PATH" (concat (hover--build-hover-command) ":" (getenv "PATH")))
   (when hover-hot-reload-on-save
-    (add-hook 'after-save-hook #'hover-hot-reload)))
+    (remove-hook 'after-save-hook 'hover--hot-reload)
+    (add-hook 'after-save-hook 'hover--hot-reload))
+  (define-key hover-mode-map (kbd "C-x q") #'hover-kill))
 
 (provide 'hover)
 ;;; hover.el ends here
