@@ -158,6 +158,10 @@ Save on FILE-PATH and use the observatory URI given."
    (format "%s screenshot --type=rasterizer --out=%s --observatory-uri=%s" (hover--build-flutter-command) file-path uri)
    t))
 
+(defun hover--current-buffer-dart-p ()
+  "Return non nil if current buffer is a dart."
+  (string= "dart" (file-name-extension (buffer-file-name))))
+
 (defun hover--clear-buffer ()
   "Clear hover buffer."
   (if (hover--running-p)
@@ -165,6 +169,12 @@ Save on FILE-PATH and use the observatory URI given."
         (let ((comint-buffer-maximum-size 0))
           (comint-truncate-buffer)))
     (error "Hover is not running")))
+
+(defun hover--hot-reload ()
+  "Trigger hover hot reload."
+  (when (and (hover--current-buffer-dart-p)
+             (hover--running-p))
+    (hover--run-command-on-hover-buffer "r")))
 
 
 ;;; Key bindings
