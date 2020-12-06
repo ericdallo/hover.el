@@ -250,6 +250,7 @@ Saves screenshot on `hover-screenshot-path`."
 ;;;###autoload
 (defun hover-kill ()
   "Kill hover buffer."
+  (interactive)
   (with-current-buffer hover-buffer-name
     (kill-buffer)))
 
