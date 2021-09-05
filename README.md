@@ -54,7 +54,7 @@ The following example uses **all available** configurations above, you can custo
               ("C-M-x" . #'hover-run-or-hot-restart)
               ("C-M-p" . #'hover-take-screenshot'))
   :init
-  (setq flutter-sdk-path (concat (getenv "HOME") "/flutter") ; remove if `flutter` is already in $PATH
+  (setq hover-flutter-sdk-path (concat (getenv "HOME") "/flutter") ; remove if `flutter` is already in $PATH
         hover-command-path (concat (getenv "GOPATH") "/bin/hover") ; remove if `hover` is already in $PATH
         hover-hot-reload-on-save t
         hover-screenshot-path (concat (getenv "HOME") "/Pictures"
