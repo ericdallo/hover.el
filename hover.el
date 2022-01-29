@@ -289,7 +289,7 @@ args."
 
 ;;;###autoload
 (define-minor-mode hover-minor-mode
-  "Keybinding for running the `hover' binary tool commands"
+  "Keybinding for running the `hover' binary tool commands."
   :lighter " hover"
   :keymap hover-minor-mode-map
   :group 'hover)
