@@ -49,7 +49,7 @@ The following example uses **all available** configurations above, you can custo
 
 (use-package hover
   :after dart-mode
-  :bind (:map dart-mode-map
+  :bind (:map hover-minor-mode-map
               ("C-M-z" . #'hover-run-or-hot-reload)
               ("C-M-x" . #'hover-run-or-hot-restart)
               ("C-M-p" . #'hover-take-screenshot'))
@@ -60,7 +60,8 @@ The following example uses **all available** configurations above, you can custo
         hover-screenshot-path (concat (getenv "HOME") "/Pictures"
         hover-screenshot-prefix "my-prefix-"
         hover-observatory-uri "http://my-custom-host:50300"
-        hover-clear-buffer-on-hot-restart t)))
+        hover-clear-buffer-on-hot-restart t))
+  (hover-minor-mode 1))
 ```
 
 _Thanks to [flutter.el](https://github.com/amake/flutter.el) which inspired this project._
