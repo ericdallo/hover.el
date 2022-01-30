@@ -61,7 +61,7 @@ The following example uses **all available** configurations above, you can custo
         hover-screenshot-prefix "my-prefix-"
         hover-observatory-uri "http://my-custom-host:50300"
         hover-clear-buffer-on-hot-restart t))
-  (hover-minor-mode 1))
+  (hover-global-minor-mode t))
 ```
 
 _Thanks to [flutter.el](https://github.com/amake/flutter.el) which inspired this project._
