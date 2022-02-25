@@ -21,7 +21,7 @@ M-x package-install hover
 ```
 
 ## Running
-**hover.el** helps you run the `hover` binary interactively as an inferior It's. process designed to work together with `dart-mode`.
+**hover.el** helps you run the `hover` binary interactively as an inferior process. It's designed to work together with `dart-mode`.
 For example you can bind `hover-run-or-hot-reload` to `C-M-z` in dart-mode. While editing your Dart code, just hit `C-M-z` to either run your app, or if it's already running, to hot-reload it.
 
 ## Configuration
@@ -57,10 +57,10 @@ The following example uses **all available** configurations above, you can custo
   (setq hover-flutter-sdk-path (concat (getenv "HOME") "/flutter") ; remove if `flutter` is already in $PATH
         hover-command-path (concat (getenv "GOPATH") "/bin/hover") ; remove if `hover` is already in $PATH
         hover-hot-reload-on-save t
-        hover-screenshot-path (concat (getenv "HOME") "/Pictures"
+        hover-screenshot-path (concat (getenv "HOME") "/Pictures")
         hover-screenshot-prefix "my-prefix-"
         hover-observatory-uri "http://my-custom-host:50300"
-        hover-clear-buffer-on-hot-restart t))
+        hover-clear-buffer-on-hot-restart t)
   (hover-minor-mode 1))
 ```
 
