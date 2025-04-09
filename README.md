@@ -65,3 +65,7 @@ The following example uses **all available** configurations above, you can custo
 ```
 
 _Thanks to [flutter.el](https://github.com/amake/flutter.el) which inspired this project._
+
+# Support 
+
+Consider support the work of this project [here](https://github.com/sponsors/ericdallo) ❤️
